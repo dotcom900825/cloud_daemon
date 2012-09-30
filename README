@@ -1,1 +1,11 @@
 This is the README file of cloud_daemon, a system info synthesizer
+
+
+cc  -g -Wall -Werror -Wextra -Wno-unused-parameter -I. -I/home/thomas/Downloads/libpfm-4.3.0/perf_examples/../include -DCONFIG_PFMLIB_DEBUG -DCONFIG_PFMLIB_OS_LINUX -I. -D_GNU_SOURCE -pthread -c perf_util.c
+
+ cc  -g -Wall -Werror -Wextra -Wno-unused-parameter -I. -I/home/thomas/Downloads/libpfm-4.3.0/perf_examples/../include -DCONFIG_PFMLIB_DEBUG -DCONFIG_PFMLIB_OS_LINUX -I. -D_GNU_SOURCE -pthread -c syst.c
+
+cc  -g -Wall -Werror -Wextra -Wno-unused-parameter -I. -I/home/thomas/Downloads/libpfm-4.3.0/perf_examples/../include -l boost_thread -lconfig++ -DCONFIG_PFMLIB_DEBUG -DCONFIG_PFMLIB_OS_LINUX -I. -D_GNU_SOURCE -pthread -o cloud_daemon  cloud_daemon.o perf_util.o /home/thomas/Downloads/libpfm-4.3.0/perf_examples/../lib/libpfm.a 
+
+ cc  -g -Wall -Werror -Wextra -Wno-unused-parameter -I. -I/home/thomas/Downloads/libpfm-4.3.0/perf_examples/../include -l boost_thread -lconfig++ -DCONFIG_PFMLIB_DEBUG -DCONFIG_PFMLIB_OS_LINUX -I. -D_GNU_SOURCE -pthread -c cloud_daemon.cpp
+
