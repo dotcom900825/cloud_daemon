@@ -1,0 +1,15 @@
+sleep most of the time
+every time wake up
+sleep time would be a pamameter
+on wake read performance counter for the every cores(detect cores)
+
+identifies see every thing that's running
+make for some period of time as a parameters too
+record information for a while using some type of buffer and dump buffer to a file also a parameter as to 
+dump the info and go to sleep, after probe go to sleep, probe periodically
+use both command line and have a configuration file
+for every core, do on the core level.
+
+
+
+

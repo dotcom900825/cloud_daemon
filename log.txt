@@ -1,0 +1,4 @@
+Current machine has 2 cores
+5
+5
+./result.txt
