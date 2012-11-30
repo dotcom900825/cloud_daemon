@@ -53,10 +53,11 @@ typedef long long int num;
 
 typedef struct {
 	const char *events;
-	int delay;
+	int samplingTime;
 	int excl;
 	int cpu;
 	int group;
+	int sleepTimeBetweenSampling;
 } options_counter_per_cpu;
 
 

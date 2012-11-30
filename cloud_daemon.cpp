@@ -17,17 +17,10 @@ using namespace boost;
 /*
  * we have several optional parameters for user to use
  */
-static struct {
-	long sleep_time; //daemon wake up and do sampling
-					 //after sleep for the given time,currently using second
-	long sample_time;//daemon do the sampling for this particular given time
-	char *buffer_output_path;//output path for the log information
-	bool read_config;//whether read configuration from a config file or not
-} options_in_main;
 
 //Parameter Option string: s == sleep time,  t == sampling time
 //p == log output path, r == read configuration from configuration file
-static const char *optString = "s:t:p:r";
+static const char *optString = "e:i:s:t:p:r:d";
 
 /*
  * Name: excute funtion
@@ -46,12 +39,13 @@ void excute(long num_procs,parameters *para,process_helper *pHelper,syst_smpl *s
     cout<< para->sampling_time <<endl;
 	cout<< para->dump_file_path <<endl;
 
+	pHelper->options.sleepTimeBetweenSampling = para->timeBetweenSampling;
 	pHelper->options.cpu = -1;
-	pHelper->options.delay = para->sampling_time;
-	pHelper->options.events = "cycles,instructions"; //we now just hard coded event here
+	pHelper->options.samplingTime = para->sampling_time;
+	pHelper->options.events = para->pfm_events.c_str(); //we now just hard coded event here
 
 	timer t1;
-	//sleep(para->sleep_time); if run as a daemon we want program sleep given time
+	sleep(para->sleep_time); //if run as a daemon we want program sleep given time
 	ret  = pfm_initialize();
 	if (ret != PFM_SUCCESS)
 	errx(1, "libpfm initialization failed: %s\n", pfm_strerror(ret));
@@ -71,10 +65,10 @@ int daemon_init(void)
     exit(0); /* parent exit */
 /* child continues */
   setsid(); /* become session leader */
-  chdir("/"); /* change working directory */
+ // chdir("/"); /* change working directory */
   umask(0); /* clear file mode creation mask */
   close(0); /* close stdin */
-  close(1); /* close stdout */
+  //close(1); /* close stdout */
   close(2); /* close stderr */
   return(0);
 }
@@ -108,7 +102,7 @@ int main(int argc, char *argv[])
 			case 's' :
 					  {													 
 						para->sleep_time = atol(optarg);
-				       break;
+				        break;
 					  }
 			case 't' :
 					{
@@ -120,34 +114,56 @@ int main(int argc, char *argv[])
 					para->dump_file_path = (string)optarg;
 					break;
 				     }
-			case 'e':
-					{
-
-					}
 			case 'r' :
 					{
 				     para->read_from_config_file("config.cfg");
 				     break;
 					}
+			case 'i' :
+					{
+					  para->timeBetweenSampling = atol(optarg);
+					  break;
+					}
+			case 'd' :
+					{
+						para->daemonFlag = true;
+						break;
+					}
+			case 'e':
+					{
+						para->pfm_events = (string)optarg;
+					}
 		}
 	}
         long num_procs;
         num_procs = get_core_num();
-        /*if(daemon_init() == -1)
+        if(para->daemonFlag == true)
+        {
+        if(daemon_init() == -1)
           {
             printf("can't fork self/n");
             exit(0);
           }
-          openlog("daemontest", LOG_PID, LOG_USER);
-          syslog(LOG_INFO, "program started.");
-          signal(SIGTERM, sig_term); //arrange to catch the signal
-          while(1)
-          {
-            sleep(1); // put your main program here
+          //openlog("daemontest", LOG_PID, LOG_USER);
+          //syslog(LOG_INFO, "daemon started.");
+			char name[30] = "Cloud Daemon Started";
+			FILE* log = fopen(para->dump_file_path.c_str(), "w");
+			/* daemon works...needs to write to log */
+			fprintf(log, "%s\n", (char*)name);
+			/* ...all done, close the file */
+			fclose(log);
 
-          }
-          return(0);*/
+			signal(SIGTERM, sig_term); //arrange to catch the signal
+
+			printf("daemon mode");
+            excute(num_procs,para,pHelper,sysSmpl);
+
+        }
+        else
+        {
+          printf("normal mode");
           excute(num_procs,para,pHelper,sysSmpl);
+        }
 
 	return 0;
 }

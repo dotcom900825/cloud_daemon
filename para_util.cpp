@@ -19,6 +19,10 @@
 	 }
  }
 
+ void parameters::setTimeBetweenSampling(long time)
+ {
+	 this->timeBetweenSampling = time;
+ }
  void parameters::setSamplingTime(long time)
  {
 	 this->sampling_time = time;
@@ -27,7 +31,7 @@
 
  void parameters::setEvents(string events)
   {
- 	 this->gen_events = events;
+ 	 this->pfm_events = events;
   }
 
  void parameters::setSleepTime(long time)
@@ -37,7 +41,7 @@
 
  string parameters::getEvents()
  {
-	 return this->gen_events;
+	 return this->pfm_events;
  }
  long parameters::getSamplingTime()
  {
@@ -52,6 +56,11 @@
  string parameters::getDumpFilePath()
  {
 	 return this->dump_file_path;
+ }
+
+ long parameters::getTimeBetweenSampling()
+ {
+	 return this->timeBetweenSampling;
  }
 
   int parameters::read_from_config_file(const char *config_file_name)

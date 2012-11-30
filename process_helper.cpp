@@ -1,6 +1,6 @@
 #include"process_helper.h"
 #include<iostream>
-
+#include<sstream>
 void process_helper::measure()
 {
 				//getProcess();
@@ -12,7 +12,7 @@ void process_helper::measure()
 		int c, cmin, cmax, ncpus;
 		int i, ret, l;
 
-		printf("<press CTRL-C to quit before %ds time limit>\n", this->options.delay);
+		printf("<press CTRL-C to quit before %d time of sampling >\n", this->options.samplingTime);
 
 		cmin = 0;
 
@@ -50,14 +50,16 @@ void process_helper::measure()
 			}
 		}
 
-		for(l=0; l < options.delay; l++) {
+		for(l=0; l < options.samplingTime; l++) {
 
 			 //need to change to msleep or usleep
 
 			getProcess();
-			sleep(1);
+			sleep(options.sleepTimeBetweenSampling); //maybe need to change to msleep()
 			getProcessAfterSampling();
 			getCpuInfo();
+
+			FILE* log = fopen("./result.txt", "a");
 			for(c = cmin; c < cmax; c++) {
 				fds = all_fds[c];
 				for(i=0; i < num_fds[c]; i++) {
@@ -87,11 +89,26 @@ void process_helper::measure()
 						fds[i].values[0],
 						fds[i].values[1], fds[i].values[2], ratio,
 						fds[i].name);
+
+
+						/* daemon works...needs to write to log */
+					fprintf(log, "CPU%d val=%-20" "llu" " %-20" "llu" " raw=%" "llu" " ena=%" "llu" " run=%" "llu" " ratio=%.2f %s\n",
+							c,
+							val,
+							delta,
+							fds[i].values[0],
+							fds[i].values[1], fds[i].values[2], ratio,
+							fds[i].name);
+						/* ...all done, close the file */
+
+
 					fds[i].prev_values[0] = fds[i].values[0];
 					fds[i].prev_values[1] = fds[i].values[1];
 					fds[i].prev_values[2] = fds[i].values[2];
 				}
 			}
+			fprintf(log,"\n");
+			fclose(log);
 		}
 		for(c = cmin; c < cmax; c++) {
 			fds = all_fds[c];
@@ -166,8 +183,6 @@ int process_helper::getProcessAfterSampling()
     	std::set_intersection(procVectorBeforeSample.begin(),procVectorBeforeSample.end(),
     						  procVectorAfterSample.begin(),procVectorAfterSample.end(),
     						  std::back_inserter(surviveVector));
-
-    	printf("Done\n");
     	return 0;
 }
 int process_helper::getCpuInfo()
@@ -183,7 +198,8 @@ int process_helper::getCpuInfo()
 		const char *path = url.c_str();
 		//printf("%d\n",*iter);
 	    input = fopen(path, "r");
-	    if(!input) {
+	    if(!input)
+	    {
 	      perror("open");
 	      return 0;
 	    }
@@ -247,13 +263,27 @@ int process_helper::getCpuInfo()
 	  }
 	  fclose(input);
 	}
-	cout<< cpu_map.find(1)->second.at(0)<<endl;
 	procVectorBeforeSample.clear();
 	procVectorAfterSample.clear();
 	surviveVector.clear();
 	map<long long int,vector<string> >::iterator it;
 	for(it = cpu_map.begin(); it != cpu_map.end(); it++)
 	{
+		cout<<"Cpu "<<it->first<<": "<<it->second.at(0)<<endl;
+		cout<<endl;
+		string mystring;
+		stringstream mystream;
+		mystream << it->first;
+		mystring = mystream.str();
+
+		string pInfo = "Cpu " + mystring + ": " + it->second.at(0) + "\n";
+
+		FILE* log = fopen("./result.txt", "a");
+		/* daemon works...needs to write to log */
+		fprintf(log, "%s",pInfo.c_str());
+		/* ...all done, close the file */
+		fclose(log);
+
 		it->second.at(0).clear();
 	}
 	//cout<<it->second.at(0).size()<<endl;
