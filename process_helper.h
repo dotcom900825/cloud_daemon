@@ -32,11 +32,11 @@
 
 
 
-#include "/home/thomas/Downloads/cloud_daemon/procps-3.2.8/proc/wchan.h"
-#include "/home/thomas/Downloads/cloud_daemon/procps-3.2.8/proc/version.h"
-#include "/home/thomas/Downloads/cloud_daemon/procps-3.2.8/proc/readproc.h"
-#include "/home/thomas/Downloads/cloud_daemon/procps-3.2.8/proc/sysinfo.h"
-#include "/home/thomas/Downloads/cloud_daemon/procps-3.2.8/proc/sig.h"
+#include "./header/wchan.h"
+#include "./header/version.h"
+#include "./header/readproc.h"
+#include "./header/sysinfo.h"
+#include "./header/sig.h"
 using namespace std;
 
 static unsigned needs_for_threads;

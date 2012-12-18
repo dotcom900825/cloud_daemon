@@ -86,19 +86,14 @@
 
 	                    string sleep_time = cfg.lookup("sleep_time");
 
-	                        cout << "Sleep time: " << sleep_time << endl << endl;
+	                        this->setSleepTime(atol(sleep_time.c_str()));
 
 
 	                    string sampling_time = cfg.lookup("sampling_time");
 
-
-	                        cout << "Sampling time: " << sampling_time << endl << endl;
-
+	                    	this->setSamplingTime(atol(sampling_time.c_str()));
 
 	                    string dump_file_path = cfg.lookup("dump_file_path");
-
-
-	                        cout << "dump_file_path time: " << dump_file_path <<endl << endl;
-
+	                    	this->setDumpFilePath(dump_file_path);
 				return 0;
 }

@@ -6,9 +6,7 @@
  *
  */
 #include"para_util.h"
-#include"syst_count.h"
 #include"process_helper.h"
-#include"syst_smpl.h"
 #include <syslog.h>
 #include <signal.h>
 #include <sys/stat.h>
@@ -20,8 +18,19 @@ using namespace boost;
 
 //Parameter Option string: s == sleep time,  t == sampling time
 //p == log output path, r == read configuration from configuration file
-static const char *optString = "e:i:s:t:p:r:d";
+static const char *optString = "e:i:s:t:p:r:dh";
 
+
+static void
+usage(void)
+{
+	printf("usage: cloud_daemon [-d] [-h] [-r] [-d] [-s sleep_time] [-t sampling_time] [-p dump_file_path] [-i sleep_Time_In_Between_Sampling] [-e event1,event2,...]\n"
+		"-h\t\tget help\n"
+		"-d\t\trun as daemon\n"
+		"-r\t\tread config file\n"
+		"-e ev,ev\tgroup of events to measure (multiple -e switches are allowed)\n"
+		);
+}
 /*
  * Name: excute funtion
  * Purpose: start excute sampling task with given parameters
@@ -31,13 +40,13 @@ static const char *optString = "e:i:s:t:p:r:d";
  * 			   syst_smpl *smsSmpl:  syst_smpl class pointer
  * Return: void
  */
-void excute(long num_procs,parameters *para,process_helper *pHelper,syst_smpl *sysSmpl)
+void excute(long num_procs,parameters *para,process_helper *pHelper)
 {
 	int ret;
 	cout<<"Current machine has "<<num_procs<<" cores"<<endl;
-	cout<< para->sleep_time <<endl;
-    cout<< para->sampling_time <<endl;
-	cout<< para->dump_file_path <<endl;
+	cout<<"Sleep "<<para->sleep_time<<" before start sampling."<<endl;
+    cout<<"Do "<<para->sampling_time<<" samples"<<endl;
+	cout<<"The log file path is "<<para->dump_file_path<<endl;
 
 	pHelper->options.sleepTimeBetweenSampling = para->timeBetweenSampling;
 	pHelper->options.cpu = -1;
@@ -90,7 +99,7 @@ int main(int argc, char *argv[])
 	//sys_counter_per_cpu *sysCount = new sys_counter_per_cpu();
  	//syst_count *sysCount = new syst_count();
  	process_helper *pHelper = new process_helper();
- 	syst_smpl *sysSmpl = new syst_smpl();
+ 	//syst_smpl *sysSmpl = new syst_smpl();
 
 	int opt = 0;
 
@@ -132,6 +141,13 @@ int main(int argc, char *argv[])
 			case 'e':
 					{
 						para->pfm_events = (string)optarg;
+						break;
+					}
+			case 'h':
+					{
+						usage();
+						return(0);
+						break;
 					}
 		}
 	}
@@ -155,14 +171,14 @@ int main(int argc, char *argv[])
 
 			signal(SIGTERM, sig_term); //arrange to catch the signal
 
-			printf("daemon mode");
-            excute(num_procs,para,pHelper,sysSmpl);
+			printf("You are running under daemon mode\n");
+            excute(num_procs,para,pHelper);
 
         }
         else
         {
-          printf("normal mode");
-          excute(num_procs,para,pHelper,sysSmpl);
+          printf("You are running under normal mode\n");
+          excute(num_procs,para,pHelper);
         }
 
 	return 0;
